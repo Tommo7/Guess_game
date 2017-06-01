@@ -23,6 +23,11 @@ public class DataListActivity extends AppCompatActivity {
 
     private ProgressDialog pDialog;
     private ListView lv;
+    private ListViewAdapter adapter;
+    static String FIRST_NAME = "first_name";
+    static String LAST_NAME = "last_name";
+    static String FPPG = "fppg";
+    static String IMAGE_URL = "image_url";
 
     // URL to get contacts JSON
     private static String url = "https://cdn.rawgit.com/liamjdouglas/bb40ee8721f1a9313c22c6ea0851a105/raw/6b6fc89d55ebe4d9b05c1469349af33651d7e7f1/Player.json";
@@ -74,18 +79,18 @@ public class DataListActivity extends AppCompatActivity {
                     JSONArray players = jsonObj.getJSONArray("players");
 
                     // looping through All Players
-                    for (int i = 0; i < players.length(); i++) {
+                    for (int i = 0; i < 2; i++) {
                         JSONObject c = players.getJSONObject(i);
 
-                        String first_name = c.getString("first_name");
-                        String last_name = c.getString("last_name");
-                        String fppg = c.getString("fppg");
+                        //String first_name = c.getString("first_name");
+                        //String last_name = c.getString("last_name");
+                        //String fppg = c.getString("fppg");
                         //String address = c.getString("address");
                         //String gender = c.getString("gender");
 
                         JSONObject images = c.getJSONObject("images");
                         JSONObject def = images.getJSONObject("default");
-                        String image_url = def.getString("url");
+                        //String image_url = def.getString("url");
 
                         // Phone node is JSON Object
                         //JSONObject phone = c.getJSONObject("phone");
@@ -97,9 +102,10 @@ public class DataListActivity extends AppCompatActivity {
                         HashMap<String, String> player = new HashMap<>();
 
                         // adding each child node to HashMap key => value
-                        player.put("first_name", first_name);
-                        player.put("last_name", last_name);
-                        player.put("fppg", fppg);
+                        player.put("first_name", c.getString("first_name"));
+                        player.put("last_name", c.getString("last_name"));
+                        player.put("fppg", c.getString("fppg"));
+                        player.put("image_url", def.getString("url"));
                         //player.put("mobile", mobile);
 
                         // adding player to player list
@@ -144,11 +150,13 @@ public class DataListActivity extends AppCompatActivity {
             /**
              * Updating parsed JSON data into ListView
              * */
-            ListAdapter adapter = new SimpleAdapter(
+            /*ListAdapter adapter = new SimpleAdapter(
                     DataListActivity.this, playerList,
                     R.layout.list_item, new String[]{"first_name", "last_name",
                     "fppg"}, new int[]{R.id.first_name,
-                    R.id.last_name, R.id.fppg});
+                    R.id.last_name, R.id.fppg});*/
+
+            adapter = new ListViewAdapter(DataListActivity.this, playerList);
 
             lv.setAdapter(adapter);
         }

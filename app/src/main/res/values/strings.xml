@@ -4,4 +4,7 @@
     <string name="FirstNameLabel">First name:</string>
     <string name="LastNameLabel">Last name:</string>
     <string name="FppgLabel">Fppg:</string>
+    <string name="Completed">Congratulations</string>
+    <string name="Exit_button">Exit App</string>
+    <string name="Restart">Restart App</string>
 </resources>

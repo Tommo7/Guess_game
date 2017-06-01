@@ -1,10 +1,13 @@
 package com.example.tommo.guess_game;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -29,9 +32,17 @@ public class DataListActivity extends AppCompatActivity {
     static String FPPG = "fppg";
     static String IMAGE_URL = "image_url";
 
-    // URL to get contacts JSON
-    private static String url = "https://cdn.rawgit.com/liamjdouglas/bb40ee8721f1a9313c22c6ea0851a105/raw/6b6fc89d55ebe4d9b05c1469349af33651d7e7f1/Player.json";
+    private int j = 0;
+    private boolean player1 = true;
+    private boolean completed = false;
+    private double points1;
+    private double points2;
+    private int winningPlayer = 0;
+    private int score = 0;
 
+    // URL to get contacts JSON
+    //private static String url = "https://cdn.rawgit.com/liamjdouglas/bb40ee8721f1a9313c22c6ea0851a105/raw/6b6fc89d55ebe4d9b05c1469349af33651d7e7f1/Player.json";
+    private static String url;
     ArrayList<HashMap<String, String>> playerList;
 
     @Override
@@ -44,6 +55,136 @@ public class DataListActivity extends AppCompatActivity {
         lv = (ListView) findViewById(R.id.list);
 
         new GetPlayers().execute();
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                if((position == 0 && winningPlayer == 1) || (position == 1 && winningPlayer == 2))
+                {
+                    score++;
+                    Toast.makeText(getApplicationContext(),
+                            "Correct " + " Score: " + score + "\nFPPG1: " + points1 + "\nFPPG2: " + points2,
+                            Toast.LENGTH_LONG)
+                            .show();
+                }
+                else
+                {
+                    Toast.makeText(getApplicationContext(),
+                            "Incorrect" + "\nFPPG1: " + points1 + "\nFPPG2: " + points2,
+                            Toast.LENGTH_LONG)
+                            .show();
+                }
+                playerList.clear();
+                adapter.notifyDataSetChanged();
+
+                if(score >= 10)
+                {
+                    startActivity(new Intent(getApplicationContext(), EndGame.class));
+                    finish();
+                    System.exit(0);
+                }
+
+                j += 2;
+
+                new GetPlayers().execute();
+            }
+        });
+    }
+
+    protected void GetData(){
+        url = "https://cdn.rawgit.com/liamjdouglas/bb40ee8721f1a9313c22c6ea0851a105/raw/6b6fc89d55ebe4d9b05c1469349af33651d7e7f1/Player.json";
+        HttpHandler sh = new HttpHandler();
+
+        // Making a request to url and getting response
+        String jsonStr = sh.makeServiceCall(url);
+
+        Log.e(TAG, "Response from url: " + jsonStr);
+
+        if (jsonStr != null) {
+            try {
+                JSONObject jsonObj = new JSONObject(jsonStr);
+
+                // Getting JSON Array node
+                JSONArray players = jsonObj.getJSONArray("players");
+
+                // looping through Players
+                for (int i = j; i < (j + 2); i++) {
+                    if(i >= 59)
+                    {
+                        j = -1;
+                        i = 0;
+                    }
+
+                    JSONObject c = players.getJSONObject(i);
+                    String points = c.getString("fppg");
+                    if(player1)
+                    {
+                        points1 = Double.parseDouble(points);
+                    }
+                    else
+                    {
+                        points2 = Double.parseDouble(points);
+                        completed = true;
+                    }
+
+                    JSONObject images = c.getJSONObject("images");
+                    JSONObject def = images.getJSONObject("default");
+
+                    // tmp hash map for single player
+                    HashMap<String, String> player = new HashMap<>();
+
+                    // adding each child node to HashMap key => value
+                    player.put("first_name", c.getString("first_name"));
+                    player.put("last_name", c.getString("last_name"));
+                    player.put("fppg", c.getString("fppg"));
+                    player.put("image_url", def.getString("url"));
+
+                    // adding player to player list
+                    playerList.add(player);
+
+                    player1 = !player1;
+
+                    if(completed)
+                    {
+                        if(points1 > points2)
+                        {
+                            winningPlayer = 1;
+                        }
+                        else
+                        {
+                            winningPlayer = 2;
+                        }
+
+                        completed = false;
+                    }
+                }
+            } catch (final JSONException e) {
+                Log.e(TAG, "Json parsing error: " + e.getMessage());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),
+                                "Json parsing error: " + e.getMessage(),
+                                Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+
+            }
+        } else {
+            Log.e(TAG, "Couldn't get json from server.");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(),
+                            "Couldn't get json from server. Check LogCat for possible errors!",
+                            Toast.LENGTH_LONG)
+                            .show();
+                }
+            });
+
+        }
     }
 
     /**
@@ -64,79 +205,8 @@ public class DataListActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... arg0) {
-            HttpHandler sh = new HttpHandler();
 
-            // Making a request to url and getting response
-            String jsonStr = sh.makeServiceCall(url);
-
-            Log.e(TAG, "Response from url: " + jsonStr);
-
-            if (jsonStr != null) {
-                try {
-                    JSONObject jsonObj = new JSONObject(jsonStr);
-
-                    // Getting JSON Array node
-                    JSONArray players = jsonObj.getJSONArray("players");
-
-                    // looping through All Players
-                    for (int i = 0; i < 2; i++) {
-                        JSONObject c = players.getJSONObject(i);
-
-                        //String first_name = c.getString("first_name");
-                        //String last_name = c.getString("last_name");
-                        //String fppg = c.getString("fppg");
-                        //String address = c.getString("address");
-                        //String gender = c.getString("gender");
-
-                        JSONObject images = c.getJSONObject("images");
-                        JSONObject def = images.getJSONObject("default");
-                        //String image_url = def.getString("url");
-
-                        // Phone node is JSON Object
-                        //JSONObject phone = c.getJSONObject("phone");
-                        //String mobile = phone.getString("mobile");
-                        //String home = phone.getString("home");
-                        //String office = phone.getString("office");
-
-                        // tmp hash map for single player
-                        HashMap<String, String> player = new HashMap<>();
-
-                        // adding each child node to HashMap key => value
-                        player.put("first_name", c.getString("first_name"));
-                        player.put("last_name", c.getString("last_name"));
-                        player.put("fppg", c.getString("fppg"));
-                        player.put("image_url", def.getString("url"));
-                        //player.put("mobile", mobile);
-
-                        // adding player to player list
-                        playerList.add(player);
-                    }
-                } catch (final JSONException e) {
-                    Log.e(TAG, "Json parsing error: " + e.getMessage());
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getApplicationContext(),
-                                    "Json parsing error: " + e.getMessage(),
-                                    Toast.LENGTH_LONG)
-                                    .show();
-                        }
-                    });
-
-                }
-            } else {
-                Log.e(TAG, "Couldn't get json from server.");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(),
-                                "Couldn't get json from server. Check LogCat for possible errors!",
-                                Toast.LENGTH_LONG)
-                                .show();
-                    }
-                });
-
-            }
+            GetData();
 
             return null;
         }
@@ -150,12 +220,6 @@ public class DataListActivity extends AppCompatActivity {
             /**
              * Updating parsed JSON data into ListView
              * */
-            /*ListAdapter adapter = new SimpleAdapter(
-                    DataListActivity.this, playerList,
-                    R.layout.list_item, new String[]{"first_name", "last_name",
-                    "fppg"}, new int[]{R.id.first_name,
-                    R.id.last_name, R.id.fppg});*/
-
             adapter = new ListViewAdapter(DataListActivity.this, playerList);
 
             lv.setAdapter(adapter);

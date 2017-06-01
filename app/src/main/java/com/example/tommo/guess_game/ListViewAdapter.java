@@ -30,6 +30,7 @@ public class ListViewAdapter extends BaseAdapter {
         this.context = context;
         data = arraylist;
         imageLoader = new ImageLoader(context);
+        imageLoader.clearCache();
     }
 
     @Override
@@ -51,7 +52,7 @@ public class ListViewAdapter extends BaseAdapter {
         // Declare Variables
         TextView first_name;
         TextView last_name;
-        TextView fppg;
+        //TextView fppg;
         ImageView person;
 
         inflater = (LayoutInflater) context
@@ -64,7 +65,7 @@ public class ListViewAdapter extends BaseAdapter {
         // Locate the TextViews in listview_item.xml
         first_name = (TextView) itemView.findViewById(R.id.first_name);
         last_name = (TextView) itemView.findViewById(R.id.last_name);
-        fppg = (TextView) itemView.findViewById(R.id.fppg);
+        //fppg = (TextView) itemView.findViewById(R.id.fppg);
 
         // Locate the ImageView in listview_item.xml
         person = (ImageView) itemView.findViewById(R.id.person);
@@ -72,31 +73,31 @@ public class ListViewAdapter extends BaseAdapter {
         // Capture position and set results to the TextViews
         first_name.setText(resultp.get(DataListActivity.FIRST_NAME));
         last_name.setText(resultp.get(DataListActivity.LAST_NAME));
-        fppg.setText(resultp.get(DataListActivity.FPPG));
+        //fppg.setText(resultp.get(DataListActivity.FPPG));
         // Capture position and set results to the ImageView
-        // Passes flag images URL into ImageLoader.class
+        // Passes images URL into ImageLoader.class
         imageLoader.DisplayImage(resultp.get(DataListActivity.IMAGE_URL), person);
         // Capture ListView item click
-        itemView.setOnClickListener(new OnClickListener() {
+        /*itemView.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
                 // Get the position
                 resultp = data.get(position);
                 Intent intent = new Intent(context, SingleItemView.class);
-                // Pass all data rank
+                // Pass all data first name
                 intent.putExtra("first_name", resultp.get(DataListActivity.FIRST_NAME));
-                // Pass all data country
+                // Pass all data last name
                 intent.putExtra("last_name", resultp.get(DataListActivity.LAST_NAME));
-                // Pass all data population
+                // Pass all data fppg
                 intent.putExtra("fppg",resultp.get(DataListActivity.FPPG));
-                // Pass all data flag
+                // Pass all data image
                 intent.putExtra("image_url", resultp.get(DataListActivity.IMAGE_URL));
                 // Start SingleItemView Class
                 context.startActivity(intent);
 
             }
-        });
+        });*/
         return itemView;
     }
 }

@@ -22,6 +22,8 @@
         </activity>
         <activity android:name=".SingleItemView" >
         </activity>
+        <activity android:name=".EndGame" >
+        </activity>
     </application>
 
 </manifest>

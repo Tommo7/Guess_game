@@ -13,7 +13,7 @@ public class SingleItemView extends Activity {
     // Declare Variables
     String first_name;
     String last_name;
-    String fppg;
+    //String fppg;
     String image_url;
     String position;
     ImageLoader imageLoader = new ImageLoader(this);
@@ -25,19 +25,19 @@ public class SingleItemView extends Activity {
         setContentView(R.layout.activity_single_item_view);
 
         Intent i = getIntent();
-        // Get the result of rank
+        // Get the result of first name
         first_name = i.getStringExtra("first_name");
-        // Get the result of country
+        // Get the result of last name
         last_name = i.getStringExtra("last_name");
-        // Get the result of population
-        fppg = i.getStringExtra("fppg");
-        // Get the result of flag
+        // Get the result of fppg
+        //fppg = i.getStringExtra("fppg");
+        // Get the result of image
         image_url = i.getStringExtra("image_url");
 
         // Locate the TextViews in singleitemview.xml
         TextView txtfirstname = (TextView) findViewById(R.id.first_name);
         TextView txtlastname = (TextView) findViewById(R.id.last_name);
-        TextView txtfppg = (TextView) findViewById(R.id.fppg);
+        //TextView txtfppg = (TextView) findViewById(R.id.fppg);
 
         // Locate the ImageView in singleitemview.xml
         ImageView imgplayer = (ImageView) findViewById(R.id.person);
@@ -45,7 +45,7 @@ public class SingleItemView extends Activity {
         // Set results to the TextViews
         txtfirstname.setText(first_name);
         txtlastname.setText(last_name);
-        txtfppg.setText(fppg);
+        //txtfppg.setText(fppg);
 
         // Capture position and set results to the ImageView
         // Passes flag images URL into ImageLoader.class
